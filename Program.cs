@@ -22,16 +22,83 @@ namespace Bankomaten
 
             /* Array with accounts for each user, every other number is 
              * account type and every other is value. */
-            decimal[] LukasKonton = new decimal[] { 0, 13278.32m, 2, 36000 };
-            decimal[] FridasKonton = new decimal[] { 0, 2435.67m, 1, 124762.35m, 
+            decimal[] LukasAcc = new decimal[] { 0, 13278.32m, 2, 36000 };
+            decimal[] FridaAcc = new decimal[] { 0, 2435.67m, 1, 124762.35m, 
                 4, 34238.98m };
-            decimal[] ElsasKonton = new decimal[] { 0, 36452.55m, };
-            decimal[] AbdulsKonton = new decimal[] { 0, 55435.11m, 3, 8540 };
-            decimal[] KentsKonton = new decimal[] 
+            decimal[] ElsaAcc = new decimal[] { 0, 36452.55m, };
+            decimal[] AbdulAcc = new decimal[] { 0, 55435.11m, 3, 8540 };
+            decimal[] KentAcc = new decimal[] 
                 { 0, 243.45m, 1, 36000, 2, 100 };
 
             Console.ReadKey();
         }
+
+        // Method for user login
+        public static string UserLogin(string[,] UserList)
+        {
+            int userIndex = 0;
+            Console.WriteLine("Skriv ditt användarnamn:");
+            string userInput = Console.ReadLine();
+            // Check if user name is valid
+                
+            bool notFound = true;
+            while (notFound)
+            {
+                for (int i = 0; i < UserList.Length; i++)
+                {
+                    if (userInput == UserList[i, 0])
+                    {
+                        userIndex = i;
+                        notFound = false;
+                    }
+                    else if (i == UserList.Length - 1)
+                    {
+                        Console.WriteLine("Användarnamnet saknas" +
+                            "försök igen.");
+                        userInput = Console.ReadLine();
+                    }
+                }
+            }
+            bool pinCheck = CheckPin(userIndex, UserList);
+            if (pinCheck)
+            {
+                return userInput;
+            }
+            else
+            {
+                return "Denied";
+            }
+        }
+
+        // Method for checking pin code
+        public static bool CheckPin(int UserIndex, string[,] UserList)
+        {
+            Console.Write("Skriv din fyrsiffriga pinkod: ");
+            string userInput = Console.ReadLine();
+            int i = 2;
+            bool correctPin = false;
+            do
+            {
+                if (userInput == UserList[UserIndex, 1])
+                {
+                    correctPin = true;
+                    // change value of i to break loop
+                    i = 0;
+                }
+                else
+                {
+                    Console.Write($"Fel kod, du har {i} försök kvar. " +
+                        "\nSkriv din fyrsiffriga pinkod: ");
+                    i--;
+                }
+            } while (i > 0);
+            // If pin was not entered correctly in three tries, return false
+            if (!correctPin)
+                return false;
+            else
+                return true;
+        }
+
         // Method for printing out user accounts
         public static void PrintAccount(string[] AccName, decimal[] Account)
         {
@@ -54,6 +121,7 @@ namespace Bankomaten
                 }
             }
         }
+
         // Method for transferring money between accounts
         public static decimal[] TransferMoney(string[] AccName, decimal[] Account)
         {
@@ -114,6 +182,7 @@ namespace Bankomaten
             return Account;
         }
 
+        // Method for checking if user has chosen an existing account
         private static int CheckAccount(decimal[] Account)
         {
             bool error = true;
