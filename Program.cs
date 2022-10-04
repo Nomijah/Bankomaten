@@ -1,7 +1,5 @@
 ﻿// Petter Boström SUT22
 using System;
-// To use List
-using System.Collections.Generic;
 
 namespace Bankomaten
 {
@@ -9,88 +7,137 @@ namespace Bankomaten
     {
         static void Main(string[] args)
         {
-            // Create array for holding user names
-            string[] userList = new string[5];
-            // Create five test users and put ID in array
-            User user1 = new User("Lars", 4378);
-            userList[0] = user1.Id;
-            User user2 = new User("Frida", 6901);
-            userList[1] = user2.Id;
-            User user3 = new User("Anna", 0209);
-            userList[2] = user3.Id;
-            User user4 = new User("Abdul", 7288);
-            userList[3] = user4.Id;
-            User user5 = new User("Kent", 5156);
-            userList[4] = user5.Id;
-            // Open two accounts for each user
-            user1.OpenAccount("Lönekonto", 23578.32, "SEK");
-            user1.OpenAccount("Sparkonto", 7308.5, "EUR");
-            user2.OpenAccount("Lönekonto", 248.54, "SEK");
-            user2.OpenAccount("Sparkonto", 2310.69, "SEK");
-            user3.OpenAccount("Lönekonto", 50344.87, "SEK");
-            user3.OpenAccount("Sparkonto", 354275.12, "USD");
-            user4.OpenAccount("Lönekonto", 18432.32, "SEK");
-            user4.OpenAccount("Sparkonto", 305233.31, "SEK");
-            user5.OpenAccount("Lönekonto", 3488.02, "SEK");
-            user5.OpenAccount("Sparkonto", 485321.79, "EUR");
+            /* Array for holding user names and pin numbers with creation 
+             * of test users. */
+            string[,] userList = new string[,]
+            { { "Lukas", "4378" },
+            { "Frida", "6901" },
+            { "Elsa", "0209" },
+            { "Abdul", "7288"},
+            { "Kent", "5156" } };
+
+            // Array with account types
+            string[] accName = new string[] {"Lönekonto", "Sparkonto",
+                "Resekonto", "Barnsparkonto", "Gemensamt konto" };
+
+            /* Array with accounts for each user, every other number is 
+             * account type and every other is value. */
+            decimal[] LukasKonton = new decimal[] { 0, 13278.32m, 2, 36000 };
+            decimal[] FridasKonton = new decimal[] { 0, 2435.67m, 1, 124762.35m, 
+                4, 34238.98m };
+            decimal[] ElsasKonton = new decimal[] { 0, 36452.55m, };
+            decimal[] AbdulsKonton = new decimal[] { 0, 55435.11m, 3, 8540 };
+            decimal[] KentsKonton = new decimal[] 
+                { 0, 243.45m, 1, 36000, 2, 100 };
 
             Console.ReadKey();
         }
-    }
-    // Class for user management
-    public class User
-    {
-        // User Id
-        public string Id { get; set; }
-        // User security pin
-        public int Pin { get; set; }
-        // Create list for user accounts
-        public List<Account> Accounts = new List<Account>();
-        public User(string name, int pin)
+        // Method for printing out user accounts
+        public static void PrintAccount(string[] AccName, decimal[] Account)
         {
-            Id = name;
-            Pin = pin;
-        }
-        // Method for opening a new account
-        public void OpenAccount(string name, double value, string currency)
-        {
-            Account account = new Account(name, value, currency);
-            Accounts.Add(account);
-        }
-        // Method for printing out users accounts
-        public void PrintAccounts()
-        {
-            Console.WriteLine(Id);
-            foreach (var item in Accounts)
+            // Counter for list number
+            int counter = 1;
+            Console.WriteLine("Dina konton:");
+            // Loop through accounts
+            for (int i = 0; i < Account.Length; i++)
             {
-                item.PrintAccount();
+                // Print account name for each even index in account array
+                if (i%2 == 0)
+                {
+                    Console.Write("{0}. {1}: ", counter, AccName[i]);
+                    counter++;
+                }
+                // Print amount for every other index
+                else
+                {
+                    Console.Write(Account[i].ToString() + " SEK\n");
+                }
             }
         }
-        // Method for transferring money
-    }
-    // Class for account management
-    public class Account
-    {
-        public string AccountName { get; set; }
-        public double Value { get; set; }
-        public string Currency { get; set; }
+        // Method for transferring money between accounts
+        public static decimal[] TransferMoney(string[] AccName, decimal[] Account)
+        {
+            // Check if user has more than one account
+            if (Account.Length < 4)
+            {
+                Console.WriteLine("Du har bara ett konto.");
+            }
+            else
+            {
+                // Print users accounts
+                PrintAccount(AccName, Account);
+                // Ask which account to transfer from
+                Console.Write("Vilket konto vill du föra över pengar från?" +
+                    "(ange siffran): ");
+                int fromAccount = CheckAccount(Account);
+                // Ask which account to transfer to
+                Console.Write("Vilket konto vill du föra över pengar till?" +
+                    "(ange siffran): ");
+                int toAccount = CheckAccount(Account);
+                // Ask how much to transfer
+                Console.WriteLine("Saldo: {0}", Account[fromAccount]);
+                bool amountError = true;
+                decimal transferSum = 0;
+                while (amountError)
+                {
+                    try
+                    {
+                        Console.WriteLine("Hur mycket pengar vill du föra" +
+                            " över?");
+                        transferSum = decimal.Parse(Console.ReadLine());
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Felaktig inmatning, använd enbart" +
+                            " siffror och använd kommatecken före ören.");
+                    }
+                    // Check if given sum is available in account
+                    if (transferSum <= 0 || transferSum > Account[fromAccount])
+                    {
+                        Console.WriteLine("Den angivna summan finns inte " +
+                            "på kontot");
+                    }
+                    else
+                    {
+                        // Transfer the money and present new account balance
+                        Account[fromAccount] = 
+                            Account[fromAccount] - transferSum;
+                        Account[toAccount] = Account[toAccount] + transferSum;
+                        Console.WriteLine("Överföringen lyckades. Dina nya" +
+                            " saldon är:");
+                        PrintAccount(AccName, Account);
+                        amountError = false;
+                    }
+                }
+                
+            }
+            return Account;
+        }
 
-        public Account(string name, double value, string currency)
+        private static int CheckAccount(decimal[] Account)
         {
-            AccountName = name;
-            Value = value;
-            Currency = currency;
-        }
-        // Create method to present variables as string
-        public override string ToString()
-        {
-            return base.ToString();
-        }
-        // Create method to print account details
-        public void PrintAccount()
-        {
-            Console.WriteLine("Kontonamn: {0} \nSaldo: {1} {2}", AccountName,
-                Value, Currency);
+            bool error = true;
+            int userChoice = 0;
+            while (error)
+            {
+                string userInput = Console.ReadLine();
+                if (!Int32.TryParse(userInput, out userChoice))
+                {
+                    Console.WriteLine("Använd enbart siffror.");
+                }
+                else if (Int32.Parse(userInput) > Account.Length / 2
+                    || Int32.Parse(userInput) < 1)
+                {
+                    Console.WriteLine("Siffran du angivit finns inte, " +
+                        "försök igen.");
+                }
+                else
+                {
+                    userChoice = (Int32.Parse(userInput) * 2) - 1;
+                    error = false;
+                }
+            }
+            return userChoice;
         }
     }
 }
