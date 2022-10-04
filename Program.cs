@@ -123,7 +123,8 @@ namespace Bankomaten
         }
 
         // Method for transferring money between accounts
-        public static decimal[] TransferMoney(string[] AccName, decimal[] Account)
+        public static decimal[] TransferMoney
+            (string[] AccName, decimal[] Account)
         {
             // Check if user has more than one account
             if (Account.Length < 4)
@@ -182,6 +183,58 @@ namespace Bankomaten
             return Account;
         }
 
+        // Method for withdrawing money
+        public static decimal[] WithdrawMoney(string[] AccName, 
+            decimal[] Account, int UserIndex, string[,] UserList)
+        {
+            // Print users accounts
+            PrintAccount(AccName, Account);
+            // Ask which account to withdraw from
+            Console.Write("Vilket konto vill du ta ut pengar ifrån?" +
+                "(ange siffran): ");
+            int fromAccount = CheckAccount(Account);
+            // Ask how much to withdraw
+            Console.WriteLine("Saldo: {0}", Account[fromAccount]);
+            bool amountError = true;
+            decimal userSum = 0;
+            while (amountError)
+            {
+                try
+                {
+                    Console.WriteLine("Hur mycket pengar vill du ta ut?");
+                    userSum = decimal.Parse(Console.ReadLine());
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Felaktig inmatning, använd enbart" +
+                        " siffror och använd kommatecken före ören.");
+                }
+                // Check if given sum is available in account
+                if (userSum <= 0 || userSum > Account[fromAccount])
+                {
+                    Console.WriteLine("Den angivna summan finns inte " +
+                        "på kontot");
+                }
+                else
+                {
+                    if (CheckPin(UserIndex, UserList))
+                    {
+                    // Withdraw given amount from account
+                    Account[fromAccount] =
+                        Account[fromAccount] - userSum;
+                    Console.WriteLine("Uttaget lyckades. Dina nya" +
+                        " saldon är:");
+                    PrintAccount(AccName, Account);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Uttaget godkändes inte.");
+                    }
+                    amountError = false;
+                }
+            }
+            return Account;
+        }
         // Method for checking if user has chosen an existing account
         private static int CheckAccount(decimal[] Account)
         {
