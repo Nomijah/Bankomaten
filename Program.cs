@@ -7,34 +7,24 @@ namespace Bankomaten
     {
         static void Main(string[] args)
         {
-            /* Array for holding user names and pin numbers with creation 
-             * of test users. */
-            string[,] userList = new string[,]
-            { { "Lukas", "4378" },
-            { "Frida", "6901" },
-            { "Elsa", "0209" },
-            { "Abdul", "7288"},
-            { "Kent", "5156" } };
-
-            // Array with account types
-            string[] accName = new string[] {"Lönekonto", "Sparkonto",
-                "Resekonto", "Barnsparkonto", "Gemensamt konto" };
-
-            /* Array with accounts for each user, every other number is 
-             * account type and every other is value. */
-            decimal[] LukasAcc = new decimal[] { 0, 13278.32m, 2, 36000 };
-            decimal[] FridaAcc = new decimal[] { 0, 2435.67m, 1, 124762.35m, 
-                4, 34238.98m };
-            decimal[] ElsaAcc = new decimal[] { 0, 36452.55m, };
-            decimal[] AbdulAcc = new decimal[] { 0, 55435.11m, 3, 8540 };
-            decimal[] KentAcc = new decimal[] 
+             /* Array with accounts for each user, every other number is 
+              * account type and every other is value. */
+             decimal[] LukasAcc = new decimal[] { 0, 13278.32m, 2, 36000 };
+             decimal[] FridaAcc = new decimal[] { 0, 2435.67m, 1, 124762.35m,
+                    4, 34238.98m };
+             decimal[] ElsaAcc = new decimal[] { 0, 36452.55m, };
+             decimal[] AbdulAcc = new decimal[] { 0, 55435.11m, 3, 8540 };
+             decimal[] KentAcc = new decimal[]
                 { 0, 243.45m, 1, 36000, 2, 100 };
+
+            string user = UserLogin();
+            Console.WriteLine(user);
 
             Console.ReadKey();
         }
 
         // Method for user login
-        public static string UserLogin(string[,] UserList)
+        public static string UserLogin()
         {
             int userIndex = 0;
             Console.WriteLine("Skriv ditt användarnamn:");
@@ -44,22 +34,23 @@ namespace Bankomaten
             bool notFound = true;
             while (notFound)
             {
-                for (int i = 0; i < UserList.Length; i++)
+                for (int i = 0; i < GlobalInfo.userList.GetLength(0); i++)
                 {
-                    if (userInput == UserList[i, 0])
+                    if (userInput == GlobalInfo.userList[i, 0])
                     {
                         userIndex = i;
+                        i = GlobalInfo.userList.GetLength(0);
                         notFound = false;
                     }
-                    else if (i == UserList.Length - 1)
+                    else if (i == GlobalInfo.userList.GetLength(0) - 1)
                     {
-                        Console.WriteLine("Användarnamnet saknas" +
-                            "försök igen.");
+                        Console.WriteLine("Användarnamnet saknas," +
+                            " försök igen.");
                         userInput = Console.ReadLine();
                     }
                 }
             }
-            bool pinCheck = CheckPin(userIndex, UserList);
+            bool pinCheck = CheckPin(userIndex);
             if (pinCheck)
             {
                 return userInput;
@@ -71,7 +62,7 @@ namespace Bankomaten
         }
 
         // Method for checking pin code
-        public static bool CheckPin(int UserIndex, string[,] UserList)
+        public static bool CheckPin(int UserIndex)
         {
             Console.Write("Skriv din fyrsiffriga pinkod: ");
             string userInput = Console.ReadLine();
@@ -79,7 +70,7 @@ namespace Bankomaten
             bool correctPin = false;
             do
             {
-                if (userInput == UserList[UserIndex, 1])
+                if (userInput == GlobalInfo.userList[UserIndex, 1])
                 {
                     correctPin = true;
                     // change value of i to break loop
@@ -89,6 +80,7 @@ namespace Bankomaten
                 {
                     Console.Write($"Fel kod, du har {i} försök kvar. " +
                         "\nSkriv din fyrsiffriga pinkod: ");
+                    userInput = Console.ReadLine();
                     i--;
                 }
             } while (i > 0);
@@ -99,8 +91,8 @@ namespace Bankomaten
                 return true;
         }
 
-        // Method for printing out user accounts
-        public static void PrintAccount(string[] AccName, decimal[] Account)
+        // Method for printing user accounts
+        public static void PrintAccount(decimal[] Account)
         {
             // Counter for list number
             int counter = 1;
@@ -109,9 +101,9 @@ namespace Bankomaten
             for (int i = 0; i < Account.Length; i++)
             {
                 // Print account name for each even index in account array
-                if (i%2 == 0)
+                if (i % 2 == 0)
                 {
-                    Console.Write("{0}. {1}: ", counter, AccName[i]);
+                    Console.Write("{0}. {1}: ", counter, GlobalInfo.accName[i]);
                     counter++;
                 }
                 // Print amount for every other index
@@ -122,9 +114,9 @@ namespace Bankomaten
             }
         }
 
-        // Method for transferring money between accounts
+        //Method for transferring money between accounts
         public static decimal[] TransferMoney
-            (string[] AccName, decimal[] Account)
+            (decimal[] Account)
         {
             // Check if user has more than one account
             if (Account.Length < 4)
@@ -134,7 +126,7 @@ namespace Bankomaten
             else
             {
                 // Print users accounts
-                PrintAccount(AccName, Account);
+                PrintAccount(Account);
                 // Ask which account to transfer from
                 Console.Write("Vilket konto vill du föra över pengar från?" +
                     "(ange siffran): ");
@@ -169,26 +161,25 @@ namespace Bankomaten
                     else
                     {
                         // Transfer the money and present new account balance
-                        Account[fromAccount] = 
+                        Account[fromAccount] =
                             Account[fromAccount] - transferSum;
                         Account[toAccount] = Account[toAccount] + transferSum;
                         Console.WriteLine("Överföringen lyckades. Dina nya" +
                             " saldon är:");
-                        PrintAccount(AccName, Account);
+                        PrintAccount(Account);
                         amountError = false;
                     }
                 }
-                
+
             }
             return Account;
         }
 
         // Method for withdrawing money
-        public static decimal[] WithdrawMoney(string[] AccName, 
-            decimal[] Account, int UserIndex, string[,] UserList)
+        public static decimal[] WithdrawMoney(decimal[] Account, int UserIndex)
         {
             // Print users accounts
-            PrintAccount(AccName, Account);
+            PrintAccount(Account);
             // Ask which account to withdraw from
             Console.Write("Vilket konto vill du ta ut pengar ifrån?" +
                 "(ange siffran): ");
@@ -217,14 +208,14 @@ namespace Bankomaten
                 }
                 else
                 {
-                    if (CheckPin(UserIndex, UserList))
+                    if (CheckPin(UserIndex))
                     {
-                    // Withdraw given amount from account
-                    Account[fromAccount] =
-                        Account[fromAccount] - userSum;
-                    Console.WriteLine("Uttaget lyckades. Dina nya" +
-                        " saldon är:");
-                    PrintAccount(AccName, Account);
+                        // Withdraw given amount from account
+                        Account[fromAccount] =
+                            Account[fromAccount] - userSum;
+                        Console.WriteLine("Uttaget lyckades. Dina nya" +
+                            " saldon är:");
+                        PrintAccount(Account);
                     }
                     else
                     {
@@ -261,5 +252,22 @@ namespace Bankomaten
             }
             return userChoice;
         }
+    }
+
+    // Class for holding user info and account names
+    public static class GlobalInfo
+    {
+        /* Array for holding user names and pin numbers with creation 
+             * of test users. */
+        public static string[,] userList = new string[,]
+        { { "Lukas", "4378" },
+            { "Frida", "6901" },
+            { "Elsa", "0209" },
+            { "Abdul", "7288"},
+            { "Kent", "5156" } };
+
+        // Array with account types
+        public static string[] accName = new string[] {"Lönekonto", "Sparkonto",
+                "Resekonto", "Barnsparkonto", "Gemensamt konto" };
     }
 }
