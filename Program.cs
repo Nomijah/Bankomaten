@@ -7,24 +7,15 @@ namespace Bankomaten
     {
         static void Main(string[] args)
         {
-             /* Array with accounts for each user, every other number is 
-              * account type and every other is value. */
-             decimal[] LukasAcc = new decimal[] { 0, 13278.32m, 2, 36000 };
-             decimal[] FridaAcc = new decimal[] { 0, 2435.67m, 1, 124762.35m,
-                    4, 34238.98m };
-             decimal[] ElsaAcc = new decimal[] { 0, 36452.55m, };
-             decimal[] AbdulAcc = new decimal[] { 0, 55435.11m, 3, 8540 };
-             decimal[] KentAcc = new decimal[]
-                { 0, 243.45m, 1, 36000, 2, 100 };
-
-            string user = UserLogin();
-            Console.WriteLine(user);
-
+            decimal[] userAcc = UserLogin();
+            TransferMoney(userAcc);
+            Console.WriteLine();
+            PrintAccount(userAcc);
             Console.ReadKey();
         }
 
         // Method for user login
-        public static string UserLogin()
+        public static decimal[] UserLogin()
         {
             int userIndex = 0;
             Console.WriteLine("Skriv ditt användarnamn:");
@@ -53,11 +44,26 @@ namespace Bankomaten
             bool pinCheck = CheckPin(userIndex);
             if (pinCheck)
             {
-                return userInput;
+                switch (userIndex)
+                {
+                case 0:
+                    return GlobalInfo.LukasAcc;
+                case 1:
+                    return GlobalInfo.FridaAcc;
+                case 2:
+                    return GlobalInfo.ElsaAcc;
+                case 3:
+                    return GlobalInfo.AbdulAcc;
+                case 4:
+                    return GlobalInfo.KentAcc;
+                default:
+                        return null;
+                }
             }
             else
             {
-                return "Denied";
+                // decimal[] emptyAcc = new decimal[] {0};
+                return null;
             }
         }
 
@@ -91,7 +97,7 @@ namespace Bankomaten
                 return true;
         }
 
-        // Method for printing user accounts
+        // Method for printing all user accounts
         public static void PrintAccount(decimal[] Account)
         {
             // Counter for list number
@@ -112,6 +118,12 @@ namespace Bankomaten
                     Console.Write(Account[i].ToString() + " SEK\n");
                 }
             }
+        }
+
+        // Method for printing single user account
+        public static void PrintSingleAccount(int type, decimal balance)
+        {
+            Console.WriteLine($"{GlobalInfo.accName[type]} {balance} SEK");
         }
 
         //Method for transferring money between accounts
@@ -166,7 +178,9 @@ namespace Bankomaten
                         Account[toAccount] = Account[toAccount] + transferSum;
                         Console.WriteLine("Överföringen lyckades. Dina nya" +
                             " saldon är:");
-                        PrintAccount(Account);
+                        PrintSingleAccount(fromAccount - 1,
+                            Account[fromAccount]);
+                        PrintSingleAccount(toAccount - 1, Account[toAccount]);
                         amountError = false;
                     }
                 }
@@ -254,13 +268,13 @@ namespace Bankomaten
         }
     }
 
-    // Class for holding user info and account names
+    // Class for holding user info, account names and user accounts
     public static class GlobalInfo
     {
         /* Array for holding user names and pin numbers with creation 
              * of test users. */
         public static string[,] userList = new string[,]
-        { { "Lukas", "4378" },
+            { { "Lukas", "4378" },
             { "Frida", "6901" },
             { "Elsa", "0209" },
             { "Abdul", "7288"},
@@ -269,5 +283,18 @@ namespace Bankomaten
         // Array with account types
         public static string[] accName = new string[] {"Lönekonto", "Sparkonto",
                 "Resekonto", "Barnsparkonto", "Gemensamt konto" };
+
+        /* Array with accounts for each user, every other number is 
+              * account type and every other is value. */
+        public static decimal[] LukasAcc = new decimal[]
+            { 0, 13278.32m, 2, 36000 };
+        public static decimal[] FridaAcc = new decimal[] 
+            { 0, 2435.67m, 1, 124762.35m, 4, 34238.98m };
+        public static decimal[] ElsaAcc = new decimal[] 
+            { 0, 36452.55m, };
+        public static decimal[] AbdulAcc = new decimal[] 
+            { 0, 55435.11m, 3, 8540 };
+        public static decimal[] KentAcc = new decimal[]
+           { 0, 243.45m, 1, 36000, 2, 100 };
     }
 }
