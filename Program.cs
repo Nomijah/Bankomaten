@@ -264,9 +264,10 @@ namespace Bankomaten
                         // Withdraw given amount from account
                         Account[fromAccount] =
                             Account[fromAccount] - userSum;
-                        Console.WriteLine("Uttaget lyckades. Dina nya" +
-                            " saldon är:");
-                        PrintAccount(Account);
+                        Console.WriteLine("Uttaget lyckades. Ditt nya" +
+                            " saldo är:");
+                        PrintSingleAccount(fromAccount - 1,
+                            Account[fromAccount]);
                     }
                     else
                     {
