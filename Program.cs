@@ -311,6 +311,18 @@ namespace Bankomaten
             return Account[accNum] == 0 ? true : false;
         }
 
+        // Method for checking if all accounts are empty
+        private static bool AllEmpty(decimal[] Account)
+        {
+            bool empty = true;
+            for (int i = 1; i < Account.GetLength(0); i += 2)
+            {
+                if (Account[i] > 0)
+                    empty = false;
+            }
+            return empty;
+        }
+
         // Method for menu choice
         private static bool MainMenu(decimal[] Account, int userIndex)
         {
@@ -334,11 +346,19 @@ namespace Bankomaten
                         break;
                     case "2":
                         Console.Clear();
-                        Account = TransferMoney(Account);
+                        // Check if user has any money to transer
+                        if (AllEmpty(Account))
+                            Console.WriteLine("Du har tyvärr inga pengar.");
+                        else
+                            Account = TransferMoney(Account);
                         break;
                     case "3":
                         Console.Clear();
-                        Account = WithdrawMoney(Account, userIndex);
+                        // Check if user has any money to withdraw
+                        if (AllEmpty(Account))
+                            Console.WriteLine("Du har tyvärr inga pengar.");
+                        else
+                            Account = WithdrawMoney(Account, userIndex);
                         break;
                     case "4":
                         Console.Clear();
