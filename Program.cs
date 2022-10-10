@@ -20,9 +20,13 @@ namespace Bankomaten
                     runProgram = MainMenu(userAcc, userIndex);
                 }
                 else
+                {
+                    Console.WriteLine("\nDu har angett fel kod tre gånger," +
+                        " programmet avslutas.");
                     runProgram = false;
+                }
             }
-            Console.WriteLine("Tryck på valfri tangent för att avsluta.");
+            Console.WriteLine("\nTryck på valfri tangent för att avsluta.");
             Console.ReadKey();
         }
 
@@ -114,7 +118,7 @@ namespace Bankomaten
         {
             // Counter for list number
             int counter = 1;
-            Console.WriteLine("Dina konton:");
+            Console.WriteLine("\nDina konton:");
             // Loop through accounts
             for (int i = 0; i < Account.Length; i++)
             {
@@ -145,20 +149,34 @@ namespace Bankomaten
             // Check if user has more than one account
             if (Account.Length < 4)
             {
-                Console.WriteLine("Du har bara ett konto.");
+                Console.WriteLine("\nDu har bara ett konto.");
             }
             else
             {
                 // Print users accounts
                 PrintAccount(Account);
                 // Ask which account to transfer from
-                Console.Write("Vilket konto vill du föra över pengar från?" +
+                Console.Write("\nVilket konto vill du föra över pengar från?" +
                     "(ange siffran): ");
                 int fromAccount = CheckAccount(Account);
+                // Check if the chosen account is empty
+                while (EmptyAccount(Account, fromAccount))
+                {
+                    Console.Write("Kontot du har valt är tomt, vänligen" +
+                        " välj ett annat konto: ");
+                    fromAccount = CheckAccount(Account);
+                }
                 // Ask which account to transfer to
                 Console.Write("Vilket konto vill du föra över pengar till?" +
                     "(ange siffran): ");
                 int toAccount = CheckAccount(Account);
+                // Check if the same account is chosen again
+                while (toAccount == fromAccount)
+                {
+                    Console.WriteLine("\nDu måste välja ett annat konto" +
+                        " än det du redan valt.");
+                    toAccount = CheckAccount(Account);
+                }
                 // Ask how much to transfer
                 Console.WriteLine("Saldo: {0}", Account[fromAccount]);
                 bool amountError = true;
@@ -188,7 +206,7 @@ namespace Bankomaten
                         Account[fromAccount] =
                             Account[fromAccount] - transferSum;
                         Account[toAccount] = Account[toAccount] + transferSum;
-                        Console.WriteLine("Överföringen lyckades. Dina nya" +
+                        Console.WriteLine("\nÖverföringen lyckades. Dina nya" +
                             " saldon är:");
                         PrintSingleAccount(fromAccount - 1,
                             Account[fromAccount]);
@@ -210,6 +228,13 @@ namespace Bankomaten
             Console.Write("Vilket konto vill du ta ut pengar ifrån?" +
                 "(ange siffran): ");
             int fromAccount = CheckAccount(Account);
+            // Check if chosen account is empty
+            while (EmptyAccount(Account, fromAccount))
+            {
+                Console.Write("\nKontot du har valt är tomt, vänligen " +
+                    "välj ett annat konto: ");
+                fromAccount = CheckAccount(Account);
+            }
             // Ask how much to withdraw
             Console.WriteLine("Saldo: {0}", Account[fromAccount]);
             bool amountError = true;
@@ -280,6 +305,12 @@ namespace Bankomaten
             return userChoice;
         }
 
+        // Method for checking if account is empty
+        private static bool EmptyAccount(decimal[] Account, int accNum)
+        {
+            return Account[accNum] == 0 ? true : false;
+        }
+
         // Method for menu choice
         private static bool MainMenu(decimal[] Account, int userIndex)
         {
@@ -288,7 +319,7 @@ namespace Bankomaten
             bool userLoggedIn = true;
             while (userLoggedIn)
             {
-                Console.WriteLine("Vad vill du göra?\n" +
+                Console.WriteLine("\nVad vill du göra?\n" +
                 "1. Se dina konton och saldo\n" +
                 "2. Överföra pengar mellan konton\n" +
                 "3. Ta ut pengar\n" +
@@ -298,19 +329,24 @@ namespace Bankomaten
                 switch (userInput)
                 {
                     case "1":
+                        Console.Clear();
                         PrintAccount(Account);
                         break;
                     case "2":
+                        Console.Clear();
                         Account = TransferMoney(Account);
                         break;
                     case "3":
+                        Console.Clear();
                         Account = WithdrawMoney(Account, userIndex);
                         break;
                     case "4":
+                        Console.Clear();
                         keepGoing = true;
                         userLoggedIn = false;
                         break;
                     case "5":
+                        Console.Clear();
                         keepGoing = false;
                         userLoggedIn = false;
                         break;
