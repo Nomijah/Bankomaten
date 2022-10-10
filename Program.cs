@@ -7,17 +7,29 @@ namespace Bankomaten
     {
         static void Main(string[] args)
         {
-            decimal[] userAcc = UserLogin();
-            TransferMoney(userAcc);
-            Console.WriteLine();
-            PrintAccount(userAcc);
+            bool runProgram = true;
+            while (runProgram)
+            {
+                // Variable to save users index place in login-array
+                int userIndex;
+                // Run UserLogin and save the users accounts to userAcc
+                decimal[] userAcc = UserLogin(out userIndex);
+                // If user is successfully logged in, run program
+                if (userAcc != null)
+                {
+                    runProgram = MainMenu(userAcc, userIndex);
+                }
+                else
+                    runProgram = false;
+            }
+            Console.WriteLine("Tryck på valfri tangent för att avsluta.");
             Console.ReadKey();
         }
 
         // Method for user login
-        public static decimal[] UserLogin()
+        public static decimal[] UserLogin(out int userIndex)
         {
-            int userIndex = 0;
+            userIndex = 0;
             Console.WriteLine("Skriv ditt användarnamn:");
             string userInput = Console.ReadLine();
             // Check if user name is valid
@@ -240,6 +252,7 @@ namespace Bankomaten
             }
             return Account;
         }
+
         // Method for checking if user has chosen an existing account
         private static int CheckAccount(decimal[] Account)
         {
@@ -265,6 +278,68 @@ namespace Bankomaten
                 }
             }
             return userChoice;
+        }
+
+        // Method for menu choice
+        private static bool MainMenu(decimal[] Account, int userIndex)
+        {
+            // boolean for return value
+            bool keepGoing = true;
+            bool userLoggedIn = true;
+            while (userLoggedIn)
+            {
+                Console.WriteLine("Vad vill du göra?\n" +
+                "1. Se dina konton och saldo\n" +
+                "2. Överföra pengar mellan konton\n" +
+                "3. Ta ut pengar\n" +
+                "4. Logga ut\n" +
+                "5. Stäng programmet");
+                string userInput = Console.ReadLine();
+                switch (userInput)
+                {
+                    case "1":
+                        PrintAccount(Account);
+                        break;
+                    case "2":
+                        Account = TransferMoney(Account);
+                        break;
+                    case "3":
+                        Account = WithdrawMoney(Account, userIndex);
+                        break;
+                    case "4":
+                        keepGoing = true;
+                        userLoggedIn = false;
+                        break;
+                    case "5":
+                        keepGoing = false;
+                        userLoggedIn = false;
+                        break;
+                    default:
+                        Console.WriteLine("Felaktigt val, ange endast siffra " +
+                            "+ enter.");
+                        break;
+                }
+            }
+            // Update accounts at GlobalInfo before exiting
+            switch (userIndex)
+            {
+                case 0:
+                    GlobalInfo.LukasAcc = Account;
+                    break;
+                case 1:
+                    GlobalInfo.FridaAcc = Account;
+                    break;
+                case 2:
+                    GlobalInfo.ElsaAcc = Account;
+                    break;
+                case 3:
+                    GlobalInfo.AbdulAcc = Account;
+                    break;
+                case 4:
+                    GlobalInfo.KentAcc = Account;
+                    break;
+            }
+            return keepGoing;
         }
     }
 
