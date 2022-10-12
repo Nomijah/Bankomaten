@@ -14,3 +14,4 @@ program doesn't crash in most cases, I know of a few things I could add to impro
 problems. Given the structure of the program one can easily add more functions without altering the existing code and I think that it is obvious what each method does
 and it's easy to follow along in the code. I'm happy with the result and the only way I would be more happy with it is if I were allowed to remake it with object classes
 instead of arrays for the user info and accounts.
+(note: to show my current knowledge I have tried to use different ways of handling things so the code might seem incosistent because of that)
