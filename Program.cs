@@ -129,7 +129,8 @@ namespace Bankomaten
                 // Print account name for each even index in account array
                 if (i % 2 == 0)
                 {
-                    Console.Write("{0}. {1}: ", counter, GlobalInfo.accName[i]);
+                    Console.Write("{0}. {1}: ", counter, 
+                        GlobalInfo.accName[Convert.ToInt32(Account[i])]);
                     counter++;
                 }
                 // Print amount for every other index
@@ -212,9 +213,12 @@ namespace Bankomaten
                         Account[toAccount] = Account[toAccount] + transferSum;
                         Console.WriteLine("\nÖverföringen lyckades. Dina nya" +
                             " saldon är:");
-                        PrintSingleAccount(fromAccount - 1,
+                        PrintSingleAccount
+                            (Convert.ToInt32(Account[fromAccount - 1]),
                             Account[fromAccount]);
-                        PrintSingleAccount(toAccount - 1, Account[toAccount]);
+                        PrintSingleAccount
+                            (Convert.ToInt32(Account[toAccount - 1]), 
+                            Account[toAccount]);
                         amountError = false;
                     }
                 }
@@ -271,7 +275,8 @@ namespace Bankomaten
                             Account[fromAccount] - userSum;
                         Console.WriteLine("Uttaget lyckades. Ditt nya" +
                             " saldo är:");
-                        PrintSingleAccount(fromAccount - 1,
+                        PrintSingleAccount
+                            (Convert.ToInt32(Account[fromAccount - 1]),
                             Account[fromAccount]);
                     }
                     else
@@ -330,6 +335,43 @@ namespace Bankomaten
             return empty;
         }
 
+        // Method for opening a new account
+        private static decimal[] OpenAccount(decimal[] Account)
+        {
+            Console.WriteLine("Vilken typ av konto vill du öppna?");
+            int counter = 1;
+            foreach (var item in GlobalInfo.accName)
+            {
+                Console.WriteLine($"{counter}. {item}");
+                counter++;
+            }
+            Console.Write("\nAnge siffran för kontotypen du vill öppna: ");
+            string userInput = Console.ReadLine();
+            // Check if user input is valid
+            while (userInput != "1" && userInput != "2" && userInput != "3"
+                && userInput != "4" && userInput != "5")
+            {
+                Console.Write("Felaktig inmatning, välj en siffra mellan" +
+                    " 1-5: ");
+                userInput = Console.ReadLine();
+            }
+            // variable to save chosen account type index
+            int nameIndex = Int32.Parse(userInput) - 1;
+            // Create new larger array for accounts
+            decimal[] newAccounts = new decimal[Account.Length + 2];
+            // Transfer info from old array to new
+            for (int i = 0; i < Account.Length; i++)
+            {
+                newAccounts[i] = Account[i];
+            }
+            // Add new account to the array
+            newAccounts[Account.Length] = nameIndex;
+            newAccounts[Account.Length + 1] = 0.00M;
+            Console.WriteLine($"Ett {GlobalInfo.accName[nameIndex]} är nu " +
+                $"öppnat.");
+            return newAccounts;
+        }
+
         // Method for menu choice
         private static bool MainMenu(decimal[] Account, int userIndex)
         {
@@ -342,8 +384,9 @@ namespace Bankomaten
                 "1. Se dina konton och saldo\n" +
                 "2. Överföra pengar mellan konton\n" +
                 "3. Ta ut pengar\n" +
-                "4. Logga ut\n" +
-                "5. Stäng programmet");
+                "4. Öppna ett nytt konto\n" +
+                "5. Logga ut\n" +
+                "6. Stäng programmet");
                 string userInput = Console.ReadLine();
                 switch (userInput)
                 {
@@ -369,10 +412,14 @@ namespace Bankomaten
                         break;
                     case "4":
                         Console.Clear();
+                        Account = OpenAccount(Account);
+                        break;
+                    case "5":
+                        Console.Clear();
                         keepGoing = true;
                         userLoggedIn = false;
                         break;
-                    case "5":
+                    case "6":
                         Console.Clear();
                         keepGoing = false;
                         userLoggedIn = false;
