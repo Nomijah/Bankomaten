@@ -33,22 +33,24 @@ namespace Bankomaten
         // Method for user login
         public static decimal[] UserLogin(out int userIndex)
         {
+            // Variable to save user index for further use in program
             userIndex = 0;
             Console.WriteLine("Skriv ditt användarnamn:");
             string userInput = Console.ReadLine();
             // Check if user name is valid
-                
             bool notFound = true;
             while (notFound)
             {
                 for (int i = 0; i < GlobalInfo.userList.GetLength(0); i++)
                 {
+                    // Check if entered user name is in userList
                     if (userInput == GlobalInfo.userList[i, 0])
                     {
                         userIndex = i;
                         i = GlobalInfo.userList.GetLength(0);
                         notFound = false;
                     }
+                    // If username is not found, ask user to try again
                     else if (i == GlobalInfo.userList.GetLength(0) - 1)
                     {
                         Console.WriteLine("Användarnamnet saknas," +
@@ -60,6 +62,7 @@ namespace Bankomaten
             bool pinCheck = CheckPin(userIndex);
             if (pinCheck)
             {
+                // Return accounts for logged in user
                 switch (userIndex)
                 {
                 case 0:
@@ -78,7 +81,7 @@ namespace Bankomaten
             }
             else
             {
-                // decimal[] emptyAcc = new decimal[] {0};
+                // If login failed, return null
                 return null;
             }
         }
@@ -92,6 +95,7 @@ namespace Bankomaten
             bool correctPin = false;
             do
             {
+                // Check if entered pin is correct
                 if (userInput == GlobalInfo.userList[UserIndex, 1])
                 {
                     correctPin = true;
@@ -259,6 +263,7 @@ namespace Bankomaten
                 }
                 else
                 {
+                    // Ask user for pin code verification
                     if (CheckPin(UserIndex))
                     {
                         // Withdraw given amount from account
@@ -299,6 +304,7 @@ namespace Bankomaten
                 }
                 else
                 {
+                    // Convert the given number to correct index number in array
                     userChoice = (Int32.Parse(userInput) * 2) - 1;
                     error = false;
                 }
